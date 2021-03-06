@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://gitlab.com/datek-agar/agar-core"
 
 [tool.poetry.scripts]
-run-server = 'agar_core.run_server:run_server'
+run-server = 'datek_agar_core.run_server:run_server'
 
 [tool.poetry.dependencies]
 python = "^3.9"
