@@ -5,6 +5,7 @@ description = "Agar game core"
 authors = ["DAtek <dudasa7@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://gitlab.com/datek-agar/agar-core"
 
 [tool.poetry.scripts]
 run-server = 'agar_core.run_server:run_server'
