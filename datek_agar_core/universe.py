@@ -18,6 +18,10 @@ class Universe:
     MAX_SPEED = MIN_SPEED * 5
     MINIMAL_RADIUS_MODIFIER_TO_EAT = 1.25
     VIEW_DISTANCE = 20
+    HALF_LIFE_SECONDS = 200
+    MINIMAL_SHRINK_RADIUS = BACTERIA_STARTING_RADIUS * 2.5
+
+    _DOUBLE_HALF_LIFE_SECONDS = HALF_LIFE_SECONDS * 2
 
     def __init__(
         self,
@@ -61,3 +65,6 @@ class Universe:
         vector[vector < -self._half_world_size] += self._world_size
 
         return vector
+
+    def calculate_radius_decrement_per_sec(self, radius: float) -> float:
+        return radius / self._DOUBLE_HALF_LIFE_SECONDS if radius > self.MINIMAL_SHRINK_RADIUS else 0

@@ -50,6 +50,7 @@ class Game(AsyncWorker):
                 return
 
             self._simulation.move_bacterias()
+            self._simulation.shrink_bacterias()
             self._simulation.place_food()
             self._simulation.feed_bacterias_to_other_bacterias()
             self._simulation.feed_organisms_to_bacterias()
@@ -95,6 +96,15 @@ class Simulation:
         for bacteria in self._game_status.bacterias:
             bacteria.position += (bacteria.current_speed / REFRESH_FREQUENCY)
             bacteria.position %= self._universe.world_size
+
+    def shrink_bacterias(self):
+        for bacteria in self._game_status.bacterias:
+            radius_decrement = self._universe.calculate_radius_decrement_per_sec(bacteria.radius)
+            if radius_decrement == 0:
+                continue
+
+            radius_decrement /= REFRESH_FREQUENCY
+            bacteria.radius -= radius_decrement
 
     def feed_bacterias_to_other_bacterias(self):
         self._game_status.bacterias.sort(key=lambda item: item.size, reverse=True)

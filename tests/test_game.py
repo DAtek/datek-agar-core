@@ -1,9 +1,11 @@
 from asyncio import Queue, sleep, CancelledError
 from math import isclose, floor, pi
+from unittest.mock import patch
 
-from datek_agar_core.game import Game, GameStatus, Simulation, Bacteria, Organism
+from datek_agar_core.game import Game, GameStatus, Simulation, Bacteria, Organism, REFRESH_INTERVAL
 from datek_agar_core.universe import Universe
 from pytest import mark
+from .utils import Function
 
 
 class TestGame:
@@ -30,15 +32,42 @@ class TestGame:
             game_status_queue=Queue(),
             universe=universe
         )
+        await game.add_bacteria("b1", [0, 0])
+        await game.add_bacteria("b2", [10, 10])
 
-        game.start()
-        await sleep(0.01)
-        game.stop()
+        move_bacterias = Function()
+        shrink_bacterias = Function()
+        place_food = Function()
+        feed_bacterias_to_other_bacterias = Function()
+        feed_organisms_to_bacterias = Function()
+
+        @patch.object(Simulation, Simulation.move_bacterias.__name__, move_bacterias)
+        @patch.object(Simulation, Simulation.shrink_bacterias.__name__, shrink_bacterias)
+        @patch.object(Simulation, Simulation.place_food.__name__, place_food)
+        @patch.object(
+            Simulation,
+            Simulation.feed_bacterias_to_other_bacterias.__name__,
+            feed_bacterias_to_other_bacterias
+        )
+        @patch.object(Simulation, Simulation.feed_organisms_to_bacterias.__name__, feed_organisms_to_bacterias)
+        async def run_():
+            game.start()
+            await game.wait_started()
+            await sleep(REFRESH_INTERVAL)
+            game.stop()
+
+        await run_()
 
         try:
             await game.task
         except CancelledError:
             pass
+
+        assert move_bacterias.called_count
+        assert shrink_bacterias.called_count
+        assert place_food.called_count
+        assert feed_bacterias_to_other_bacterias.called_count
+        assert feed_organisms_to_bacterias.called_count
 
 
 class TestSimulation:
@@ -193,6 +222,30 @@ class TestSimulation:
         )
 
         assert not simulation.get_organisms_to_eat(bacteria)
+
+    def test_shrink_bacterias(self):
+        radius1 = Universe.MINIMAL_SHRINK_RADIUS + 0.001
+        bacteria1 = Bacteria(
+            radius=radius1
+        )
+
+        bacteria2 = Bacteria(
+            radius=Universe.MINIMAL_SHRINK_RADIUS
+        )
+
+        game_status = GameStatus(
+            bacterias=[bacteria1, bacteria2]
+        )
+
+        simulation = Simulation(
+            universe=universe,
+            game_status=game_status
+        )
+
+        simulation.shrink_bacterias()
+
+        assert bacteria1.radius < radius1
+        assert bacteria2.radius == Universe.MINIMAL_SHRINK_RADIUS
 
 
 WORLD_SIZE = 100
