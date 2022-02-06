@@ -85,7 +85,6 @@ class UDPServer(AsyncWorker):
             await gather(
                 self._run_handle_receive(),
                 self._run_handle_game_status_queue(),
-                loop=self._loop,
             )
         except (CancelledError, KeyboardInterrupt):
             pass
