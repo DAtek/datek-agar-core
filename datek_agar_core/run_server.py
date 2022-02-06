@@ -8,6 +8,7 @@ from datek_agar_core.utils import create_logger
 try:
     import uvloop
 except ImportError:
+
     class Dummy:
         def install(self):
             pass
@@ -40,24 +41,13 @@ def stop_server():
     _stop_signal.set_result(1)
 
 
-async def _main(
-    *,
-    host: str,
-    port: int,
-    size: int,
-    livestock: int
-):
+async def _main(*, host: str, port: int, size: int, livestock: int):
     global _stop_signal
     _stop_signal = Future()
     _logger.info("Starting server")
     loop = get_event_loop()
     loop.shutdown_default_executor = _handle_shutdown
-    server = UDPServer(
-        host=host,
-        port=port,
-        world_size=size,
-        total_nutrient=livestock
-    )
+    server = UDPServer(host=host, port=port, world_size=size, total_nutrient=livestock)
 
     server.start()
     _logger.info("Server started")
@@ -70,4 +60,3 @@ async def _main(
 
 async def _handle_shutdown(*args, **kwargs):
     _logger.info("Shutting down")
-

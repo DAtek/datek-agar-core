@@ -17,11 +17,7 @@ def _create_id() -> int:
 
 
 class Position(np.ndarray):
-    _converters = {
-        list: np.array,
-        tuple: np.array,
-        bytes: np.frombuffer
-    }
+    _converters = {list: np.array, tuple: np.array, bytes: np.frombuffer}
 
     @classmethod
     def __get_validators__(cls):
@@ -36,7 +32,9 @@ class Position(np.ndarray):
 
             return cls._converters[type_](value, np.float32)
         except KeyError:
-            raise TypeError(f"Received: {value}: {type_}\nndarray or tuple or list or bytes required")
+            raise TypeError(
+                f"Received: {value}: {type_}\nndarray or tuple or list or bytes required"
+            )
 
 
 class Organism(BaseModel):
@@ -46,7 +44,7 @@ class Organism(BaseModel):
 
     @property
     def size(self) -> float:
-        return self.radius ** 2 * HALF_PI
+        return self.radius**2 * HALF_PI
 
     def __hash__(self):
         return self.id
@@ -57,7 +55,9 @@ class Organism(BaseModel):
 
 class Bacteria(Organism):
     name: str = ""
-    current_speed: Position = Field(default_factory=lambda: np.array([0, 0], np.float32))
+    current_speed: Position = Field(
+        default_factory=lambda: np.array([0, 0], np.float32)
+    )
     max_speed: float = 1.0
     hue: float = 0.1
 

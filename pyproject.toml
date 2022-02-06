@@ -15,7 +15,7 @@ python = "^3.9"
 msgpack = "^1.0.2"
 pydantic = "^1.7.3"
 numpy = "^1.19.5"
-click = "^7.1.2"
+click = "^8.0.3"
 datek-app-utils = "^0.3.0"
 uvloop = {version = "^0.16.0", optional = true}
 
@@ -24,6 +24,7 @@ pytest = "^6.2.1"
 pytest-cov = "^2.10.1"
 pytest-asyncio = "^0.14.0"
 pytest-click = "^1.0.2"
+black = "^22.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

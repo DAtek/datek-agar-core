@@ -31,10 +31,7 @@ class Message(BaseModel):
         return cls(**data)
 
     def pack(self) -> bytes:
-        packed = packb(
-            self.dict(exclude_none=True),
-            default=cast
-        )
+        packed = packb(self.dict(exclude_none=True), default=cast)
         return compress(packed)
 
     @root_validator

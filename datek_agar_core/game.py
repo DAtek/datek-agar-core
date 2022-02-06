@@ -30,7 +30,7 @@ class Game(AsyncWorker):
     async def change_bacteria_speed(
         self,
         id_: int,
-        speed_polar_coordinates: Union[Position, tuple[float, float], list[float]]
+        speed_polar_coordinates: Union[Position, tuple[float, float], list[float]],
     ):
         bacteria = self._game_status.get_bacteria_by_id(id_)
         current_speed = bacteria.max_speed * speed_polar_coordinates[0]
@@ -56,14 +56,20 @@ class Game(AsyncWorker):
 
             await self._game_status_queue.put(self._game_status)
 
-    async def add_bacteria(self, name: str, position: Iterable[float] = None) -> Bacteria:
-        max_speed = self._universe.calculate_organism_max_speed(Universe.BACTERIA_STARTING_RADIUS)
+    async def add_bacteria(
+        self, name: str, position: Iterable[float] = None
+    ) -> Bacteria:
+        max_speed = self._universe.calculate_organism_max_speed(
+            Universe.BACTERIA_STARTING_RADIUS
+        )
         async with self._lock:
             bacteria = Bacteria(
                 name=name,
                 hue=random(),
                 radius=Universe.BACTERIA_STARTING_RADIUS,
-                position=position if position else self._simulation.create_random_position(),
+                position=position
+                if position
+                else self._simulation.create_random_position(),
                 current_speed=[0, 0],
                 max_speed=max_speed,
             )
@@ -88,12 +94,13 @@ class Simulation:
 
     @property
     def total_in_game_organics_size(self) -> float:
-        return sum((organism.size for organism in self._game_status.organisms)) \
-               + sum((bacteria.size for bacteria in self._game_status.bacterias))
+        return sum((organism.size for organism in self._game_status.organisms)) + sum(
+            (bacteria.size for bacteria in self._game_status.bacterias)
+        )
 
     def move_bacterias(self) -> None:
         for bacteria in self._game_status.bacterias:
-            bacteria.position += (bacteria.current_speed / REFRESH_FREQUENCY)
+            bacteria.position += bacteria.current_speed / REFRESH_FREQUENCY
             bacteria.position %= self._universe.world_size
 
     def feed_bacterias_to_other_bacterias(self):
@@ -123,7 +130,9 @@ class Simulation:
             self._modify_bacteria_size_and_speed(bacteria, organisms)
             self.remove_organisms(set(organisms))
 
-    def _modify_bacteria_size_and_speed(self, bacteria: Bacteria, organisms_to_eat: list[Organism]):
+    def _modify_bacteria_size_and_speed(
+        self, bacteria: Bacteria, organisms_to_eat: list[Organism]
+    ):
         size_increment = _calculate_size_summary(organisms_to_eat)
         new_size = bacteria.size + size_increment
         bacteria.radius = (new_size * 2 / pi) ** 0.5
@@ -135,12 +144,13 @@ class Simulation:
     def create_random_position(self) -> tuple[float, float]:
         return (
             uniform(0, self._universe.world_size),
-            uniform(0, self._universe.world_size)
+            uniform(0, self._universe.world_size),
         )
 
     def place_food(self) -> None:
         organism_count = floor(
-            (self._universe.total_nutrient - self.total_in_game_organics_size) / Universe.FOOD_ORGANISM_SIZE
+            (self._universe.total_nutrient - self.total_in_game_organics_size)
+            / Universe.FOOD_ORGANISM_SIZE
         )
 
         if organism_count < 1:
@@ -168,14 +178,17 @@ class Simulation:
         if not self._game_status.organisms:
             return []
 
-        organism_positions = np.array([organism.position for organism in self._game_status.organisms], np.float32)
-        relative_positions = self._universe.calculate_position_vector_array(bacteria.position, organism_positions)
-        distances = (relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2) ** 0.5
+        organism_positions = np.array(
+            [organism.position for organism in self._game_status.organisms], np.float32
+        )
+        relative_positions = self._universe.calculate_position_vector_array(
+            bacteria.position, organism_positions
+        )
+        distances = (
+            relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2
+        ) ** 0.5
 
-        distance_id_map = {
-            distances[id_]: id_
-            for id_ in range(len(distances))
-        }
+        distance_id_map = {distances[id_]: id_ for id_ in range(len(distances))}
 
         wanted_distances = distances[bacteria.radius >= distances]
 
@@ -191,7 +204,8 @@ class Simulation:
         for bacteria_ in self._game_status.bacterias:
             if (
                 bacteria_.id == bacteria.id
-                or (bacteria.radius / bacteria_.radius) < Universe.MINIMAL_RADIUS_MODIFIER_TO_EAT
+                or (bacteria.radius / bacteria_.radius)
+                < Universe.MINIMAL_RADIUS_MODIFIER_TO_EAT
             ):
                 continue
 
@@ -202,10 +216,16 @@ class Simulation:
             return []
 
         bacteria_positions = np.array(bacteria_positions, np.float32)
-        relative_positions = self._universe.calculate_position_vector_array(bacteria.position, bacteria_positions)
-        distances = (relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2) ** 0.5
+        relative_positions = self._universe.calculate_position_vector_array(
+            bacteria.position, bacteria_positions
+        )
+        distances = (
+            relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2
+        ) ** 0.5
 
-        wanted_ids = [i for i in range(len(distances)) if distances[i] < bacteria.radius]
+        wanted_ids = [
+            i for i in range(len(distances)) if distances[i] < bacteria.radius
+        ]
 
         return [
             self._game_status.get_bacteria_by_id(position_id_map[id_])
@@ -215,4 +235,4 @@ class Simulation:
 
 def _calculate_size_summary(organisms: list[Organism]):
     radius_array = np.array([organism.radius for organism in organisms], np.float32)
-    return sum(radius_array ** 2 * HALF_PI)
+    return sum(radius_array**2 * HALF_PI)
