@@ -5,7 +5,7 @@ description = "Agar game core"
 authors = ["DAtek <dudasa7@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://gitlab.com/datek-agar/agar-core"
+repository = "https://github.com/DAtek/datek-agar-core"
 
 [tool.poetry.scripts]
 run-server = 'datek_agar_core.run_server:run_server'
@@ -15,9 +15,9 @@ python = "^3.9"
 msgpack = "^1.0.2"
 pydantic = "^1.7.3"
 numpy = "^1.19.5"
-uvloop = {version = "^0.14.0", optional = true}
 click = "^7.1.2"
-datek-app-utils = "^0.2.0"
+datek-app-utils = "^0.3.0"
+uvloop = {version = "^0.16.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
