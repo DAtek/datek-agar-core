@@ -1,0 +1,28 @@
+name: CD Pipeline
+
+on:
+  create:
+
+jobs:
+  CD:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Load version into env
+        run: |
+          [[ $GITHUB_REF =~ refs/tags/(.*) ]]
+          version="${BASH_REMATCH[1]}"
+          [ -z "${version}" ] && exit 1
+          echo "RELEASE_VERSION=${version}" >> $GITHUB_ENV
+
+      - name: Install env
+        uses: ./.github/actions/install-python-env
+
+      - name: Build and publish
+        run: |
+          source .venv/bin/activate
+          poetry version ${RELEASE_VERSION}
+          poetry build
+          poetry publish -u __token__ -p ${{ secrets.PYPI_API_TOKEN }}
