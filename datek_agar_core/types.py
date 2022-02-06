@@ -42,15 +42,15 @@ class Organism(BaseModel):
     radius: float = Universe.FOOD_ORGANISM_RADIUS
     id: int = Field(default_factory=_create_id)
 
+    class Config:
+        copy_on_model_validation = False
+
     @property
     def size(self) -> float:
         return self.radius**2 * HALF_PI
 
     def __hash__(self):
         return self.id
-
-    def copy(self, *args, **kwargs):
-        return self
 
 
 class Bacteria(Organism):
