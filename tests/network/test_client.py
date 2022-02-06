@@ -13,20 +13,14 @@ from ..utils import AsyncFunction, Function
 
 class TestUDPClient:
     @mark.asyncio
-    @mark.parametrize(
-        ["player_id", "wanted_value"],
-        [
-            (1, 2),
-            (None, 1)
-        ]
-    )
+    @mark.parametrize(["player_id", "wanted_value"], [(1, 2), (None, 1)])
     async def test_change_speed(self, test_server, player_id, wanted_value):
         client = UDPClient(
             player_name="Jenny",
             host=HOST,
             port=PORT,
             handle_message=handle_message,
-            ping_interval_sec=0.5
+            ping_interval_sec=0.5,
         )
         sendto = Function()
 
@@ -52,11 +46,13 @@ class TestUDPClient:
             host=HOST,
             port=PORT,
             handle_message=handle_message,
-            ping_interval_sec=0.5
+            ping_interval_sec=0.5,
         )
 
         assert not client.player_id
-        with patch.object(AddressRegistry, AddressRegistry.update_address.__name__, update_address):
+        with patch.object(
+            AddressRegistry, AddressRegistry.update_address.__name__, update_address
+        ):
             client.start()
             await client.wait_started()
             await sleep(REFRESH_INTERVAL)

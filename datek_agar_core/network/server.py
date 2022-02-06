@@ -16,7 +16,12 @@ from datek_agar_core.network.protocol import Protocol, AddressTuple
 from datek_agar_core.network.message import Message, MessageType
 from datek_agar_core.types import GameStatus, Organism, Bacteria
 from datek_agar_core.universe import Universe
-from datek_agar_core.utils import run_forever, AsyncWorker, async_log_error, create_logger
+from datek_agar_core.utils import (
+    run_forever,
+    AsyncWorker,
+    async_log_error,
+    create_logger,
+)
 
 
 class UDPServer(AsyncWorker):
@@ -27,7 +32,7 @@ class UDPServer(AsyncWorker):
         port: int,
         world_size: int,
         total_nutrient: int,
-        client_expiration_seconds: float = 2
+        client_expiration_seconds: float = 2,
     ):
         self._host = host
         self._port = port
@@ -40,7 +45,9 @@ class UDPServer(AsyncWorker):
 
         self._address_registry = AddressRegistry(client_expiration_seconds)
 
-        self._actions: dict[MessageType, Callable[[Message, AddressTuple], Coroutine]] = {
+        self._actions: dict[
+            MessageType, Callable[[Message, AddressTuple], Coroutine]
+        ] = {
             MessageType.CONNECT: self._handle_connect,
             MessageType.PING: self._handle_ping,
             MessageType.CHANGE_SPEED: self._handle_move,
@@ -65,7 +72,7 @@ class UDPServer(AsyncWorker):
         try:
             self._transport, self._protocol = await self._loop.create_datagram_endpoint(
                 lambda: Protocol(self._receive_queue, self._loop),
-                local_addr=(self._host, self._port)
+                local_addr=(self._host, self._port),
             )  # type: DatagramTransport, Protocol
         except Exception as error:
             self._started.set_exception(error)
@@ -78,7 +85,6 @@ class UDPServer(AsyncWorker):
             await gather(
                 self._run_handle_receive(),
                 self._run_handle_game_status_queue(),
-                loop=self._loop
             )
         except (CancelledError, KeyboardInterrupt):
             pass
@@ -104,7 +110,9 @@ class UDPServer(AsyncWorker):
         message = Message(type=MessageType.GAME_STATUS_UPDATE)
 
         async for address in self._address_registry.get_addresses():
-            message.game_status = await self._game_status_filter.get_filtered_game_status(address)
+            message.game_status = (
+                await self._game_status_filter.get_filtered_game_status(address)
+            )
 
             if message.game_status is None:
                 continue
@@ -118,8 +126,7 @@ class UDPServer(AsyncWorker):
         bacteria = await self._game.add_bacteria(name=message.name, position=[0, 0])
 
         await self._game_status_filter.register_player(
-            player_id=bacteria.id,
-            address=_create_address_string(address)
+            player_id=bacteria.id, address=_create_address_string(address)
         )
 
         self._transport.sendto(
@@ -130,7 +137,7 @@ class UDPServer(AsyncWorker):
                 world_size=self._universe.world_size,
                 total_nutrient=self._universe.total_nutrient,
             ).pack(),
-            address
+            address,
         )
 
     @async_log_error("UDPServer")
@@ -142,7 +149,7 @@ class UDPServer(AsyncWorker):
         await self._address_registry.update_address(address)
         await self._game.change_bacteria_speed(
             id_=message.bacteria_id,
-            speed_polar_coordinates=message.speed_polar_coordinates
+            speed_polar_coordinates=message.speed_polar_coordinates,
         )
 
 
@@ -227,13 +234,14 @@ class GameStatusFilter:
                 del self._address_player_id_map[address]
                 return
 
-            relative_positions = self._universe.calculate_position_vector_array(bacteria.position, self._positions)
-            distances = (relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2) ** 0.5
+            relative_positions = self._universe.calculate_position_vector_array(
+                bacteria.position, self._positions
+            )
+            distances = (
+                relative_positions[:, 0] ** 2 + relative_positions[:, 1] ** 2
+            ) ** 0.5
 
-            index_distance_map = {
-                distances[i]: i
-                for i in range(len(distances))
-            }
+            index_distance_map = {distances[i]: i for i in range(len(distances))}
 
             game_status = GameStatus()
 
@@ -242,7 +250,10 @@ class GameStatusFilter:
                 Bacteria: game_status.bacterias,
             }
 
-            indexes = (index_distance_map[distance] for distance in distances[distances < Universe.VIEW_DISTANCE])
+            indexes = (
+                index_distance_map[distance]
+                for distance in distances[distances < Universe.VIEW_DISTANCE]
+            )
             for index in indexes:
                 organism = self._position_index_organism_map[index]
                 type_list_map[organism.__class__].append(organism)

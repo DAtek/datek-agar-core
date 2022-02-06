@@ -10,18 +10,11 @@ class TestUniverse:
             world_size=1000,
         )
 
-        o = np.array(
-            [[1, 3], [1, 3], [999.787, 0]],
-            np.float32
-        )
+        o = np.array([[1, 3], [1, 3], [999.787, 0]], np.float32)
 
-        p = np.array(
-            [[7, 8], [999, 998], [0.25, 0.33]]
-        )
+        p = np.array([[7, 8], [999, 998], [0.25, 0.33]])
 
-        wanted_result = np.array(
-            [[6, 5], [-2, -5], [0.463, 0.33]]
-        )
+        wanted_result = np.array([[6, 5], [-2, -5], [0.463, 0.33]])
 
         result = universe.calculate_position_vector_array(o, p)
 

@@ -51,7 +51,7 @@ class UDPClient(AsyncWorker):
     async def _run(self):
         transport, self._protocol = await self._loop.create_datagram_endpoint(
             lambda: Protocol(self._receive_queue, self._loop),
-            remote_addr=(self._host, self._port)
+            remote_addr=(self._host, self._port),
         )  # type: DatagramTransport, Protocol
 
         handle_queue_task = self._loop.create_task(self._run_handle_queue())

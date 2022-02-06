@@ -62,7 +62,9 @@ class TestUDPServer:
         )
         update_address = MagicMock()
 
-        with patch.object(AddressRegistry, AddressRegistry.update_address.__name__, update_address):
+        with patch.object(
+            AddressRegistry, AddressRegistry.update_address.__name__, update_address
+        ):
             transport.sendto(message.pack(), (HOST, PORT))
             await sleep(REFRESH_INTERVAL)
 
@@ -73,12 +75,13 @@ class TestUDPServer:
     async def test_move(self, connected_client):
         transport, messages = connected_client[0], connected_client[1]
         message = Message(
-            type=MessageType.CHANGE_SPEED,
-            speed_polar_coordinates=(0.1, 0.2)
+            type=MessageType.CHANGE_SPEED, speed_polar_coordinates=(0.1, 0.2)
         )
 
         change_bacteria_speed = AsyncFunction()
-        with patch.object(Game, Game.change_bacteria_speed.__name__, change_bacteria_speed):
+        with patch.object(
+            Game, Game.change_bacteria_speed.__name__, change_bacteria_speed
+        ):
             transport.sendto(message.pack(), (HOST, PORT))
             await sleep(REFRESH_INTERVAL)
 
@@ -93,7 +96,7 @@ class TestUDPServer:
         with patch.object(
             GameStatusFilter,
             GameStatusFilter.get_filtered_game_status.__name__,
-            get_filtered_game_status
+            get_filtered_game_status,
         ):
             await sleep(REFRESH_INTERVAL)
 
@@ -142,13 +145,17 @@ class TestGameStatusFilter:
         address2 = "b"
         bacteria2 = Bacteria(position=[1, 1])
         address3 = "c"
-        bacteria3 = Bacteria(position=[Universe.VIEW_DISTANCE + 10, Universe.VIEW_DISTANCE + 10])
+        bacteria3 = Bacteria(
+            position=[Universe.VIEW_DISTANCE + 10, Universe.VIEW_DISTANCE + 10]
+        )
         organism1 = Organism(position=[5, 5])
-        organism2 = Organism(position=[Universe.VIEW_DISTANCE + 5, Universe.VIEW_DISTANCE + 5])
+        organism2 = Organism(
+            position=[Universe.VIEW_DISTANCE + 5, Universe.VIEW_DISTANCE + 5]
+        )
 
         game_status = GameStatus(
             bacterias=[bacteria1, bacteria2, bacteria3],
-            organisms=[organism1, organism2]
+            organisms=[organism1, organism2],
         )
 
         await game_status_filter.set_game_status(game_status)

@@ -33,8 +33,7 @@ async def test_client(test_server) -> tuple[DatagramTransport, list[bytes]]:
     messages = []
 
     transport, protocol = await loop.create_datagram_endpoint(
-        lambda: ClientProtocol(messages),
-        remote_addr=(HOST, PORT)
+        lambda: ClientProtocol(messages), remote_addr=(HOST, PORT)
     )
 
     yield transport, messages
@@ -43,7 +42,9 @@ async def test_client(test_server) -> tuple[DatagramTransport, list[bytes]]:
 
 
 @fixture
-async def connected_client(test_client, connect_message) -> tuple[DatagramTransport, list[bytes]]:
+async def connected_client(
+    test_client, connect_message
+) -> tuple[DatagramTransport, list[bytes]]:
     transport, messages = test_client[0], test_client[1]
     transport.sendto(connect_message.pack(), (HOST, PORT))
     yield test_client
@@ -51,10 +52,7 @@ async def connected_client(test_client, connect_message) -> tuple[DatagramTransp
 
 @fixture
 def connect_message() -> Message:
-    return Message(
-        type=MessageType.CONNECT,
-        name="John"
-    )
+    return Message(type=MessageType.CONNECT, name="John")
 
 
 class ClientProtocol(DatagramProtocol):

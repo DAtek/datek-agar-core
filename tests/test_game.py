@@ -10,10 +10,7 @@ class TestGame:
     @mark.asyncio
     async def test_move_bacteria(self):
         queue = Queue()
-        game = Game(
-            game_status_queue=queue,
-            universe=universe
-        )
+        game = Game(game_status_queue=queue, universe=universe)
 
         bacteria = await game.add_bacteria("John", [50, 50])
         speed_polar_coordinates = (1, pi)
@@ -26,10 +23,7 @@ class TestGame:
 
     @mark.asyncio
     async def test_loop(self):
-        game = Game(
-            game_status_queue=Queue(),
-            universe=universe
-        )
+        game = Game(game_status_queue=Queue(), universe=universe)
 
         game.start()
         await sleep(0.01)
@@ -50,32 +44,24 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[0, 0],
-            radius=1
+            radius=1,
         )
         game_status.bacterias.append(bacteria)
-        organism = Organism(
-            position=[0, 0],
-            radius=2
-        )
+        organism = Organism(position=[0, 0], radius=2)
         game_status.organisms.append(organism)
 
-        simulation = Simulation(
-            universe=universe,
-            game_status=game_status
-        )
+        simulation = Simulation(universe=universe, game_status=game_status)
 
         wanted = organism.size + bacteria.size
         assert isclose(simulation.total_in_game_organics_size, wanted)
 
     def test_place_food(self):
         game_status = GameStatus()
-        simulation = Simulation(
-            universe=universe,
-            game_status=game_status
-        )
+        simulation = Simulation(universe=universe, game_status=game_status)
 
         wanted_count = floor(
-            (universe.total_nutrient - simulation.total_in_game_organics_size) / Universe.FOOD_ORGANISM_SIZE
+            (universe.total_nutrient - simulation.total_in_game_organics_size)
+            / Universe.FOOD_ORGANISM_SIZE
         )
 
         simulation.place_food()
@@ -86,10 +72,7 @@ class TestSimulation:
 
     def test_feed_organisms_to_bacterias(self):
         game_status = GameStatus()
-        simulation = Simulation(
-            universe=universe,
-            game_status=game_status
-        )
+        simulation = Simulation(universe=universe, game_status=game_status)
 
         bacteria1 = Bacteria(
             name="asd",
@@ -97,7 +80,7 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[0, 0],
-            radius=2
+            radius=2,
         )
         initial_size = bacteria1.size
 
@@ -107,7 +90,7 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[50, 50],
-            radius=2
+            radius=2,
         )
 
         organism1 = Organism(
@@ -131,10 +114,7 @@ class TestSimulation:
 
     def test_feed_bacterias_to_bacterias(self):
         game_status = GameStatus()
-        simulation = Simulation(
-            universe=universe,
-            game_status=game_status
-        )
+        simulation = Simulation(universe=universe, game_status=game_status)
 
         bacteria1 = Bacteria(
             name="asd",
@@ -142,7 +122,7 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[0, 0],
-            radius=3
+            radius=3,
         )
         initial_size = bacteria1.size
 
@@ -152,7 +132,7 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[2, 0],
-            radius=2
+            radius=2,
         )
         bacteria2_size = bacteria2.size
 
@@ -162,7 +142,7 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[50, 50],
-            radius=2
+            radius=2,
         )
 
         game_status.bacterias = [bacteria1, bacteria2, bacteria3]
@@ -180,24 +160,16 @@ class TestSimulation:
             max_speed=0,
             hue=0,
             position=[0, 0],
-            radius=1
+            radius=1,
         )
 
-        game_status = GameStatus(
-            bacterias=[bacteria]
-        )
+        game_status = GameStatus(bacterias=[bacteria])
 
-        simulation = Simulation(
-            universe=universe,
-            game_status=game_status
-        )
+        simulation = Simulation(universe=universe, game_status=game_status)
 
         assert not simulation.get_organisms_to_eat(bacteria)
 
 
 WORLD_SIZE = 100
 
-universe = Universe(
-    total_nutrient=5,
-    world_size=WORLD_SIZE
-)
+universe = Universe(total_nutrient=5, world_size=WORLD_SIZE)

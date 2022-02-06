@@ -31,7 +31,8 @@ class AsyncWorker(ABC):
             self._task.cancel()
 
     @abstractmethod
-    async def _run(self): ...
+    async def _run(self):
+        ...
 
 
 def create_logger(name: str) -> Logger:

@@ -2,6 +2,6 @@
 .pytest_cache/
 htmlcov/
 dist/
-
+coverage.xml
 *.pyc
 .coverage
